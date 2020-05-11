@@ -13,6 +13,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -23,7 +24,7 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# TODO: connect to a local postgresql database --DONE
+# DONE TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -41,11 +42,11 @@ class Venue(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
-    genres = db.Column(db.ARRAY(db.String), nullable=False)
+    genres = db.Column(db.String(120), nullable=False)
     seeking_talent = db.Column(db.Boolean, default=False)
     seeking_description = db.Column(db.String(500))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # DONE - TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -55,7 +56,7 @@ class Artist(db.Model):
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    genres = db.Column(db.ARRAY(db.String), nullable=False)
+    genres = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
@@ -63,9 +64,9 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
 
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate DONE
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration. DONE
 
 class Show(db.Model):
   __tablename__ = 'Show'
@@ -130,7 +131,7 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+  return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
@@ -243,12 +244,49 @@ def create_venue_form():
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  error = False
+  data = request.form
+  try:
+    venue = Venue()
+    venue.name = data['name']
+    venue.city = data['city']
+    venue.state = data['state']
+    venue.address = data['address']
+    venue.phone = data['phone']
+    tmp_genres = data.getlist('genres')
+    venue.genres = ','.join(tmp_genres)
+    venue.facebook_link = data['facebook_link']
+    venue.website_link = data['website_link']
+    venue.image_link = data['image_link']
+    if 'seeking_talent' not in data:
+      venue.seeking_talent = False
+      venue.seeking_description = None
 
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    else:
+      venue.seeking_talent = True
+      venue.seeking_description = data['seeking_description']
+    
+    db.session.add(venue)
+    db.session.commit()
+  
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+
+  finally:
+    db.session.close()
+    # DONE TODO: on unsuccessful db insert, flash an error instead. DONE
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    if error:
+      flash('An error occured. Venue ' + data['name'] + ' Could not be listed!')
+    else:
+      # on successful db insert, flash success
+      flash('Venue ' + data['name'] + ' was successfully listed!')
+
+
+  
   return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
