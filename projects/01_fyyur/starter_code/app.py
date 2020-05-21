@@ -276,7 +276,7 @@ def create_venue_submission():
 
   finally:
     db.session.close()
-    # DONE TODO: on unsuccessful db insert, flash an error instead. DONE
+    # DONE TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     if error:
@@ -475,11 +475,45 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  error = False
+  data = request.form
+  try:
+    artist = Artist()
+    artist.name = data['name']
+    artist.city = data['city']
+    artist.state = data['state']
+    artist.address = data['address']
+    artist.phone = data['phone']
+    tmp_genres = data.getlist('genres')
+    artist.genres = ','.join(tmp_genres)
+    artist.facebook_link = data['facebook_link']
+    artist.website_link = data['website_link']
+    artist.image_link = data['image_link']
+
+    
+    db.session.add(venue)
+    db.session.commit()
+  
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+
+  finally:
+    db.session.close()
+    # DONE TODO: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    # DONE TODO: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+    if error:
+      flash('An error occured. Venue ' + data['name'] + ' Could not be listed!')
+    else:
+      # on successful db insert, flash success
+      flash('ArtistVenue ' + data['name'] + ' was successfully listed!')
 
   # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
+
   return render_template('pages/home.html')
 
 
@@ -489,7 +523,7 @@ def create_artist_submission():
 @app.route('/shows')
 def shows():
   # displays list of shows at /shows
-  # TODO: replace with real venues data.
+  # TODO: replace with real artists data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
   data=[{
     "venue_id": 1,
@@ -572,7 +606,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
 
 # Or specify port manually:
 '''
