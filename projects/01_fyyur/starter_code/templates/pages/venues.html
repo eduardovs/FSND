@@ -12,6 +12,12 @@
 					<h5>{{ venue.name }}</h5>
 				</div>
 			</a>
+			<!-- <p>
+				{% if venue.num_upcoming_shows==0 %} No upcoming shows
+				{% elif venue.num_upcoming_shows==1  %} {{ venue.num_upcoming_shows }} upcoming show
+				{% else %} {{ venue.num_upcoming_shows }} upcoming shows
+				{% endif %}
+			</p> -->
 		</li>
 		{% endfor %}
 	</ul>
