@@ -73,9 +73,12 @@ class Artist(db.Model):
 
 class Show(db.Model):
   __tablename__ = 'Show'
-  id = db.Column(db.Integer, primary_key=True)
-  artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id', ondelete='CASCADE'), primary_key=True)
-  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id', ondelete='CASCADE'), primary_key=True)
+  id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+  venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id', ondelete='CASCADE'), nullable=False)
+  artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id', ondelete='CASCADE'), nullable=False)
+  start_time = db.Column(db.DateTime(), nullable=False)
+
+
 
 
 
@@ -315,7 +318,7 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-  # TODO: replace with real data returned from querying the database
+  # DONE: replace with real data returned from querying the database
   # data=[{
   #   "id": 4,
   #   "name": "Guns N Petals",
@@ -589,13 +592,39 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
+  error = False
+  form = ShowForm()
+  try:
+    create_show = Show(
+        artist_id=form.artist_id.data,
+        venue_id=form.venue_id.data,
+        start_time=form.start_time.data
+    )
+    db.session.add(create_show)
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
 
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  finally:
+    db.session.close()
+    if error:
+      # on error, flash error message
+      flash('An error occurred. Show could not be listed.', 'error')
+    else:
+      # on successful db insert, flash success
+      flash('Show was successfully listed!', 'success')
+
+  # return redirect(url_for('shows'))
   return render_template('pages/home.html')
+
+  # # on successful db insert, flash success
+  # flash('Show was successfully listed!')
+  # # TODO: on unsuccessful db insert, flash an error instead.
+  # # e.g., flash('An error occurred. Show could not be listed.')
+  # # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  # return render_template('pages/home.html')
 
 @app.errorhandler(404)
 def not_found_error(error):
