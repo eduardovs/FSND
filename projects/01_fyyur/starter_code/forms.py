@@ -224,7 +224,7 @@ class ArtistForm(Form):
         'facebook_link', validators=[URL()]
     )
     image_link = StringField(
-        'image_link', validators=[URL()
+        'image_link', validators=[URL()]
     )
     website = StringField(
         'website', validators=[URL()]
