@@ -114,8 +114,8 @@ class VenueForm(Form):
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
-    website_link = StringField(
-        'website_link', validators=[URL()]
+    website = StringField(
+        'website', validators=[URL()]
     )
     image_link = StringField(
         'image_link', validators=[URL()]
@@ -224,10 +224,10 @@ class ArtistForm(Form):
         'facebook_link', validators=[URL()]
     )
     image_link = StringField(
-        'image_link'
+        'image_link', validators=[URL()
     )
-    website_link = StringField(
-        'website_link', validators=[URL()]
+    website = StringField(
+        'website', validators=[URL()]
     )
     seeking_venue = BooleanField('seeking_venue')
     seeking_description = StringField(
