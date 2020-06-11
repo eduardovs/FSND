@@ -295,7 +295,8 @@ def search_artists():
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
-  # TODO EDUARDO venue image and link not showing
+# shows the venue page with the given venue_id
+# DONE: replace with real venue data from the venues table, using venue_id
   artist = Artist.query.get(artist_id)
   if artist:
     related_shows = Show.query.filter_by(artist_id=artist_id).all()
@@ -504,10 +505,13 @@ def upcoming_shows(shows):
   for show in shows:
       if show.start_time > datetime.now():
           upcoming.append({
-              "artist_id"        : show.artist_id,
-              "artist_name"      : Artist.query.get(show.artist_id).name,
-              "artist_image_link": Artist.query.get(show.artist_id).image_link,
-              "start_time"       : format_datetime(str(show.start_time))
+            "venue_id"         : show.venue_id,
+            "venue_name"       : show.venue.name,
+            "venue_image_link" : show.venue.image_link,
+            "artist_id"        : show.artist_id,
+            "artist_name"      : show.artist.name, 
+            "artist_image_link": show.artist.image_link,
+            "start_time"       : format_datetime(str(show.start_time))
           })
 
   return upcoming
@@ -520,10 +524,14 @@ def past_shows(shows):
   for show in shows:
       if show.start_time < datetime.now():
           past.append({
-              "artist_id"        : show.artist_id,
-              "artist_name"      : Artist.query.filter_by(id=show.artist_id).first().name,
-              "artist_image_link": Artist.query.filter_by(id=show.artist_id).first().image_link,
-              "start_time"       : format_datetime(str(show.start_time))
+
+            "venue_id"         : show.venue_id,
+            "venue_name"       : show.venue.name,
+            "venue_image_link" : show.venue.image_link,
+            "artist_id"        : show.artist_id,
+            "artist_name"      : show.artist.name, 
+            "artist_image_link": show.artist.image_link,
+            "start_time"       : format_datetime(str(show.start_time))
           })
 
   return past
