@@ -617,6 +617,10 @@ def create_show_submission():
     # return redirect(url_for('shows'))
     return render_template('pages/home.html')
 
+# Functions about date calculations inspired by 
+# https://github.com/AlbuquerqueJC/fyyur/blob/master/app.py
+# Slightly modified. This approach was preferred instead of
+# static methods on the models.
 
 def upcoming_shows(shows):
     upcoming = []
