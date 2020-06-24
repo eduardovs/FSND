@@ -54,6 +54,7 @@
         {{ form.seeking_description(class_ = 'form-control') }}
       </div>
       <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">
+        {{ form.csrf_token() }}
     </form>
   </div>
 {% endblock %}

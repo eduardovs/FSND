@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL, Regexp
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
+from wtforms.validators import DataRequired, AnyOf, URL, Length, Regexp, Optional
 
 
 class ShowForm(Form):
@@ -19,6 +19,10 @@ class ShowForm(Form):
 
 
 class VenueForm(Form):
+    # def validate_phone(form, field):
+    #     if not re.search(r"^[0-9]{3}-[0-9]{3}-[0-9]{4}$", field.data):
+    #         raise ValidationError("Invalid phone number.")
+
     name = StringField(
         'name', validators=[DataRequired()]
     )
@@ -85,7 +89,9 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone', validators=[Regexp(r'^[0-9\-\+]+$')]
+        'phone', validators=[DataRequired(), 
+            Length(min=10, max=16, message="Please enter your 10 digit phone number with no spaces"),
+            Regexp(r'^[0-9\-\+]+$', message="Invalid phone format, please follow the suggested format XXX-XXX-XXXX")]
     )
 
     genres = SelectMultipleField(
@@ -114,13 +120,13 @@ class VenueForm(Form):
         ]
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[Optional(), URL()]
     )
     website = StringField(
-        'website', validators=[URL()]
+        'website', validators=[Optional(), URL()]
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link', validators=[Optional(), URL()]
     )
     seeking_talent = BooleanField('seeking_talent')
     seeking_description = StringField(
@@ -192,7 +198,9 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        'phone', validators=[Regexp(r'^[0-9\-\+]+$')]
+        'phone', validators=[DataRequired(), 
+            Length(min=10, max=16, message='Please enter your 10 digit phone number with no spaces'),
+            Regexp(r'^[0-9\-\+]+$', message='Invalid phone format, please follow the suggested format XXX-XXX-XXXX')]
     )
 
     genres = SelectMultipleField(
@@ -222,13 +230,13 @@ class ArtistForm(Form):
     )
     facebook_link = StringField(
 
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[Optional(), URL()]
     )
     image_link = StringField(
-        'image_link', validators=[URL()]
+        'image_link', validators=[Optional(), URL()]
     )
     website = StringField(
-        'website', validators=[URL()]
+        'website', validators=[Optional(), URL()]
     )
     seeking_venue = BooleanField('seeking_venue')
     seeking_description = StringField(

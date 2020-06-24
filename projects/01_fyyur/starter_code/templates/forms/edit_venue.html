@@ -2,6 +2,7 @@
 {% block title %}Edit Venue{% endblock %}
 {% block content %}
   <div class="form-wrapper">
+    {{ form.hidden_tag() }} 
     <form class="form" method="post" action="/venues/{{venue.id}}/edit">
       <h3 class="form-heading">Edit venue <em>{{ venue.name }}</em> <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
       <div class="form-group">
@@ -54,6 +55,7 @@
           {{ form.seeking_description(class_ = 'form-control') }}
         </div>
       <input type="submit" value="Edit Venue" class="btn btn-primary btn-lg btn-block">
+      {{ form.csrf_token() }}
     </form>
   </div>
 {% endblock %}
