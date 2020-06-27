@@ -8,6 +8,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -116,15 +117,20 @@ def index():
 def venues():
     # DONE: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
+    sql = text('select city, state FROM public."Venue" GROUP BY city, state ORDER BY city')
+    venue_groups = db.engine.execute(sql)
 
-    venue_groups = db.session.query(Venue.city, Venue.state).group_by(
-        Venue.city, Venue.state).all()
+
+
+    # venue_groups = db.session.query(Venue.city, Venue.state).group_by(
+    #     Venue.city, Venue.state).all()
     data = []
     for venue_group in venue_groups:
         city_name = venue_group[0]
         city_state = venue_group[1]
-        filtered = db.session.query(Venue).filter(
-            Venue.city == city_name, Venue.state == city_state)
+        filtered = db.engine.execute("""select * FROM public."Venue" where city = ?""", (city_name))
+        # filtered = db.session.query(Venue).filter(
+        #     Venue.city == city_name, Venue.state == city_state)
         group = {
             "city": city_name,
             "state": city_state,
@@ -299,9 +305,9 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
     # DONE: replace with real data returned from querying the database
-
-    data = Artist.query.order_by(Artist.name).all()
-
+    sql = text('select name FROM public."Artist" ORDER BY name asc')
+    names = db.engine.execute(sql)
+    data = names.fetchall()
     return render_template('pages/artists.html', artists=data)
 
 
