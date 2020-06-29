@@ -118,9 +118,7 @@ def venues():
     # DONE: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
     sql = text('select city, state FROM public."Venue" GROUP BY city, state ORDER BY city')
-    venue_groups = db.engine.execute(sql)
-
-
+    venue_groups = db.engine.execute(sql).fetchall()
 
     # venue_groups = db.session.query(Venue.city, Venue.state).group_by(
     #     Venue.city, Venue.state).all()
@@ -128,7 +126,10 @@ def venues():
     for venue_group in venue_groups:
         city_name = venue_group[0]
         city_state = venue_group[1]
-        filtered = db.engine.execute("""select * FROM public."Venue" where city = ?""", (city_name))
+        sql2 = text("""select * FROM public."Venue" where city = :city_name""")
+        venues = db.engine.execute(sql2, city_name = city_name).fetchall()
+
+        # removed orm syntax in favor of raw sql as per project requirements
         # filtered = db.session.query(Venue).filter(
         #     Venue.city == city_name, Venue.state == city_state)
         group = {
@@ -136,7 +137,7 @@ def venues():
             "state": city_state,
             "venues": []
         }
-        venues = filtered.all()
+
         # List venues in the city/state group
         for venue in venues:
             group['venues'].append({
@@ -154,7 +155,11 @@ def search_venues():
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
     search_term = request.form['search_term']
-    venues = Venue.query.filter(Venue.name.ilike('%'+search_term+'%')).all()
+    # Using raw sql instead of the orm syntax as required by rubric:
+    sql = text('select * FROM public."Venue" where name ilike :search_string')
+    results = db.engine.execute(sql, search_string='%'+search_term+'%')
+    venues = results.fetchall()
+    # venues = Venue.query.filter(Venue.name.ilike('%'+search_term+'%')).all()
     response = {}
     response["count"] = len(venues)
     data = []
@@ -318,8 +323,12 @@ def search_artists():
     # search for "band" should return "The Wild Sax Band".
 
     search_term = request.form['search_term']
+    # Using raw sql instead of the orm syntax as required by rubric:
+    sql = text('select * FROM public."Artist" where name ilike :search_string')
+    results = db.engine.execute(sql, search_string='%'+search_term+'%')
+    artists = results.fetchall()
 
-    artists = Artist.query.filter(Artist.name.ilike('%'+search_term+'%')).all()
+    # artists = Artist.query.filter(Artist.name.ilike('%'+search_term+'%')).all()
 
     response = {}
     response["count"] = len(artists)
