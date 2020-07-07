@@ -125,7 +125,8 @@ def show_venue(venue_id):
     # shows the venue page with the given venue_id
     # DONE: replace with real venue data from the venues table, using venue_id
 
-    venue = Venue.query.get(venue_id)
+    sql = text("""select * from public."Venue" where id = :venue_id""") 
+    venue = db.engine.execute(sql, venue_id=venue_id).fetchone()
 
     if venue:
         related_shows = Show.query.filter_by(venue_id=venue_id).all()
@@ -312,7 +313,9 @@ def search_artists():
 def show_artist(artist_id):
     # shows the venue page with the given venue_id
     # DONE: replace with real venue data from the venues table, using venue_id
-    artist = Artist.query.get(artist_id)
+    sql = text("""select * from public."Artist" where id = :artist_id""") 
+    artist = db.engine.execute(sql, artist_id=artist_id).fetchone()
+    # artist = Artist.query.get(artist_id)
     if artist:
         related_shows = Show.query.filter_by(artist_id=artist_id).all()
         data = {
@@ -360,45 +363,75 @@ def edit_artist_submission(artist_id):
     # DONE: take values from the form submitted, and update existing
     # artist record with ID <artist_id> using the new attributes
     error = False
-    artist = Artist.query.get(artist_id)
+    # Using raw sql instead of SQLAlchemy ORM
+    # artist = Artist.query.get(artist_id)
+    sql = text("""select * from public."Artist" where id = :artist_id""") 
+    artist = db.engine.execute(sql, artist_id=artist_id).fetchone()    
     form = ArtistForm()
 
     if form.validate():
         try:
             tmp_genres = form.genres.data
             if request.form['seeking_venue'] == 'y':
-                artist.seeking_venue = True
+                # artist.seeking_venue = True
+                seeking = True
             else:
-                artist.seeking_venue = False
+                # artist.seeking_venue = False
+                seeking = False
+            sql = text("""
+                UPDATE public."Artist"
+                SET name = :name, city = :city, state = :state,
+                phone = :phone, genres = :genres,
+                website = :website, facebook_link = :facebook_link,
+                image_link = :image_link, seeking_venue = :seeking_venue,
+                seeking_description = :seeking_description
+                WHERE id = :artist_id
+                """)
 
-            artist.name = form.name.data,
-            artist.city = form.city.data,
-            artist.state = form.state.data,
-            artist.phone = form.phone.data,
-            artist.genres = ','.join(tmp_genres),
-            artist.website = form.website.data,
-            artist.facebook_link = form.facebook_link.data,
-            artist.image_link = form.image_link.data,
-            artist.seeking_description = form.seeking_description.data
-
-            db.session.add(artist)
+            db.engine.execute(
+                sql,
+                name=form.name.data,
+                city=form.city.data,
+                state=form.state.data,
+                phone=form.phone.data,
+                genres=','.join(tmp_genres),
+                website=form.website.data,
+                facebook_link=form.facebook_link.data,
+                image_link=form.image_link.data,
+                seeking_venue=seeking,
+                seeking_description=form.seeking_description.data,
+                artist_id=artist_id
+            )
             db.session.commit()
+
+            # artist.name = form.name.data,
+            # artist.city = form.city.data,
+            # artist.state = form.state.data,
+            # artist.phone = form.phone.data,
+            # artist.genres = ','.join(tmp_genres),
+            # artist.website = form.website.data,
+            # artist.facebook_link = form.facebook_link.data,
+            # artist.image_link = form.image_link.data,
+            # artist.seeking_description = form.seeking_description.data
+
+            # db.session.add(artist)
+            # db.session.commit()
+
+            # on successful db insert, flash success
+            flash('Artist ' + request.form['name'] +
+                ' was successfully udated!')
 
         except:
             error = True
             db.session.rollback()
             print(sys.exc_info())
-        finally:
-            db.session.close()
-            if error:
-                # on error, flash error message
-                flash('An error occurred. Artist ' +
-                    request.form['name'] + ' could not be updated.')
+            # on error, flash error message
+            flash('An error occurred. Artist ' +
+                request.form['name'] + ' could not be updated.')
 
-            else:
-                # on successful db insert, flash success
-                flash('Artist ' + request.form['name'] +
-                    ' was successfully udated!')
+
+        finally:
+            db.session.close()             
 
     else:
         flash(form.errors)
@@ -446,22 +479,20 @@ def edit_venue_submission(venue_id):
 
             db.session.add(venue)
             db.session.commit()
+            # on successful db insert, flash success
+            flash('Venue ' + request.form['name'] +
+                ' was successfully udated!')
 
         except:
             error = True
             db.session.rollback()
             print(sys.exc_info())
+            # on error, flash error message
+            flash('An error occurred. Venue ' +
+                request.form['name'] + ' could not be updated.')
         finally:
             db.session.close()
-            if error:
-                # on error, flash error message
-                flash('An error occurred. Venue ' +
-                    request.form['name'] + ' could not be updated.')
 
-            else:
-                # on successful db insert, flash success
-                flash('Venue ' + request.form['name'] +
-                    ' was successfully udated!')
     else:
         flash(form.errors)
         return render_template('forms/edit_venue.html', form=form, venue=venue)
@@ -597,31 +628,36 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
-    # TODO: insert form data as a new Show record in the db, instead
+    # DONE TODO: insert form data as a new Show record in the db, instead
     error = False
     form = ShowForm()
     try:
-        create_show = Show(
-            artist_id=form.artist_id.data,
+        sql = text(
+                """
+                INSERT INTO public."Show"
+                (venue_id, artist_id, start_time)
+                VALUES (:venue_id, :artist_id, :start_time)
+                """            
+        )
+        
+        db.engine.execute(
+            sql, artist_id=form.artist_id.data,
             venue_id=form.venue_id.data,
             start_time=form.start_time.data
-        )
-        db.session.add(create_show)
+        )       
         db.session.commit()
+        # on successful db insert, flash success        
+        flash('Show was successfully listed!', 'success')
     except:
         error = True
         db.session.rollback()
         print(sys.exc_info())
+        # DONE: on unsuccessful db insert, flash an error instead.
+        flash('An error occurred. Show could not be listed.', 'error')
+        return render_template('forms/new_show.html', form=form)
 
     finally:
         db.session.close()
-        if error:
-            # DONE: on unsuccessful db insert, flash an error instead.
-            flash('An error occurred. Show could not be listed.', 'error')
-            return render_template('forms/new_show.html', form=form)
-        else:
-            # on successful db insert, flash success
-            flash('Show was successfully listed!', 'success')
 
     # return redirect(url_for('shows'))
     return render_template('pages/home.html')
