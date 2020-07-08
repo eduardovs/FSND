@@ -404,19 +404,6 @@ def edit_artist_submission(artist_id):
             )
             db.session.commit()
 
-            # artist.name = form.name.data,
-            # artist.city = form.city.data,
-            # artist.state = form.state.data,
-            # artist.phone = form.phone.data,
-            # artist.genres = ','.join(tmp_genres),
-            # artist.website = form.website.data,
-            # artist.facebook_link = form.facebook_link.data,
-            # artist.image_link = form.image_link.data,
-            # artist.seeking_description = form.seeking_description.data
-
-            # db.session.add(artist)
-            # db.session.commit()
-
             # on successful db insert, flash success
             flash('Artist ' + request.form['name'] +
                 ' was successfully udated!')
@@ -436,6 +423,7 @@ def edit_artist_submission(artist_id):
     else:
         flash(form.errors)
         return render_template('forms/new_artist.html', form=form)
+
     return redirect(url_for('show_artist', artist_id=artist_id))
 
 
@@ -496,18 +484,6 @@ def edit_venue_submission(venue_id):
             )
 
 
-            # venue.name = form.name.data,
-            # venue.city = form.city.data,
-            # venue.state = form.state.data,
-            # venue.address = form.address.data,
-            # venue.phone = form.phone.data,
-            # venue.genres = ','.join(tmp_genres),
-            # venue.website = form.website.data,
-            # venue.facebook_link = form.facebook_link.data,
-            # venue.image_link = form.image_link.data,
-            # venue.seeking_description = form.seeking_description.data
-
-            # db.session.add(venue)
             db.session.commit()
             # on successful db insert, flash success
             flash('Venue ' + request.form['name'] +
