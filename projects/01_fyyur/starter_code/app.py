@@ -372,7 +372,7 @@ def edit_artist_submission(artist_id):
     if form.validate():
         try:
             tmp_genres = form.genres.data
-            if request.form['seeking_venue'] == 'y':
+            if 'seeking_venue' in request.form:
                 # artist.seeking_venue = True
                 seeking = True
             else:
@@ -455,33 +455,63 @@ def edit_venue_submission(venue_id):
     # DONE: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
     error = False
-    venue = Venue.query.get(venue_id)
+    # Using raw sql instead of SQLAlchemy ORM
+    # venue = Venue.query.get(venue_id)
+    sql = text("""select * from public."Venue" where id = :venue_id""") 
+    venue = db.engine.execute(sql, venue_id=venue_id).fetchone()
     form = VenueForm()
     if form.validate():
 
         try:
             tmp_genres = form.genres.data
-            if request.form['seeking_talent'] == 'y':
-                venue.seeking_talent = True
+            if 'seeking_talent' in request.form:
+                # venue.seeking_talent = True
+                seeking = True
             else:
-                venue.seeking_talent = False
+                seeking = False
+                # venue.seeking_talent = False
 
-            venue.name = form.name.data,
-            venue.city = form.city.data,
-            venue.state = form.state.data,
-            venue.address = form.address.data,
-            venue.phone = form.phone.data,
-            venue.genres = ','.join(tmp_genres),
-            venue.website = form.website.data,
-            venue.facebook_link = form.facebook_link.data,
-            venue.image_link = form.image_link.data,
-            venue.seeking_description = form.seeking_description.data
+            sql = text("""
+                UPDATE public."Venue"
+                SET name = :name, city = :city, state = :state,
+                address = :address, phone = :phone, genres = :genres,
+                website = :website, facebook_link = :facebook_link,
+                image_link = :image_link, seeking_talent = :seeking_talent,
+                seeking_description = :seeking_description
+                WHERE id = :venue_id
+                """)
+            db.engine.execute(
+                sql, name = form.name.data,
+                city = form.city.data,
+                state = form.state.data,
+                address = form.address.data,
+                phone = form.phone.data,
+                genres = ','.join(tmp_genres),
+                website = form.website.data,
+                facebook_link = form.facebook_link.data,
+                image_link = form.image_link.data,
+                seeking_talent = seeking,
+                seeking_description = form.seeking_description.data,
+                venue_id=venue_id
+            )
 
-            db.session.add(venue)
+
+            # venue.name = form.name.data,
+            # venue.city = form.city.data,
+            # venue.state = form.state.data,
+            # venue.address = form.address.data,
+            # venue.phone = form.phone.data,
+            # venue.genres = ','.join(tmp_genres),
+            # venue.website = form.website.data,
+            # venue.facebook_link = form.facebook_link.data,
+            # venue.image_link = form.image_link.data,
+            # venue.seeking_description = form.seeking_description.data
+
+            # db.session.add(venue)
             db.session.commit()
             # on successful db insert, flash success
             flash('Venue ' + request.form['name'] +
-                ' was successfully udated!')
+                ' was successfully updated!')
 
         except:
             error = True
@@ -489,7 +519,7 @@ def edit_venue_submission(venue_id):
             print(sys.exc_info())
             # on error, flash error message
             flash('An error occurred. Venue ' +
-                request.form['name'] + ' could not be updated.')
+                request.form['name']  + ' could not be updated.')
         finally:
             db.session.close()
 
