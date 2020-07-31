@@ -9,7 +9,7 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 def paginate(request, selected):
-  page = requests.args.get('page', 1, type=int)
+  page = request.args.get('page', 1, type=int)
   start = (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
   results = [result.format() for result in selected]
@@ -23,13 +23,13 @@ def create_app(test_config=None):
   setup_db(app)
   
   '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  DONE @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
   CORS(app)
   # cors = CORS(app, resources={r'*': {'origins': '*'}})
 
   '''
-  @TODO: Use the after_request decorator to set Access-Control-Allow
+  DONE @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
   @app.after_request
   def after_request(response):
@@ -38,7 +38,7 @@ def create_app(test_config=None):
     return response
 
   '''
-  @TODO: 
+  DONE @TODO: 
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
@@ -73,6 +73,30 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
+  @app.route('/questions', methods=['GET'])
+  def get_questions():
+    selection = Question.query.order_by(Question.id).all()
+    paginated_questions = paginate(request, selection)
+    categories = Category.query.order_by(Category.id).all()
+
+# My TODO: i don't know if the categories should return a number
+# Maybe the frontend will give hints
+    if len(paginated_questions) == 0:
+      abort(404)
+
+    full_list = [c.type for c in categories]
+
+
+    return jsonify({
+      'success': True,
+      'questions': paginated_questions,
+      'categories': full_list,
+      'current_category': categories[0].type,
+      'total_questions': len(selection)
+    })
+
+
+
 
   '''
   @TODO: 
