@@ -25,7 +25,8 @@ def create_app(test_config=None):
   '''
   DONE @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-  CORS(app)
+  # CORS(app)
+  CORS(app, resources={r"/*": {"origins": "*"}})
   # cors = CORS(app, resources={r'*': {'origins': '*'}})
 
   '''
@@ -44,8 +45,8 @@ def create_app(test_config=None):
   '''
   @app.route('/categories', methods=['GET'])
   def get_categories():
-    selection = Category.query.order_by(Category.id).all()
-    categs = [categ.type for categ in selection]
+    selection = Category.query.order_by(Category.type).all()
+    categs = {categ.id: categ.type for categ in selection}
     
     if len(selection) == 0:
       abort(404)
@@ -133,12 +134,12 @@ def create_app(test_config=None):
       abort(422)
 
   '''
-  @TODO: 
+  DONE @TODO: 
   Create an endpoint to POST a new question, 
   which will require the question and answer text, 
   category, and difficulty score.
 
-  TEST: When you submit a question on the "Add" tab, 
+  todo>> TEST: When you submit a question on the "Add" tab, 
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
@@ -170,15 +171,28 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  DONE @TODO: 
   Create a POST endpoint to get questions based on a search term. 
   It should return any questions for whom the search term 
   is a substring of the question. 
 
-  TEST: Search by any phrase. The questions list will update to include 
+  todo>> TEST: Search by any phrase. The questions list will update to include 
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/questions/search', methods=['POST'])
+  def question_search():
+    search_term = request.json.get('searchTerm', '')
+    selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).order_by(Question.question).all()
+    paginated_results = paginate(request, selection)
+
+    return jsonify({
+      'success': True,
+      'questions': paginated_results,
+      'total_matches': len(selection)
+
+    })
+
 
 
   '''
@@ -189,6 +203,25 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:categ_id>/questions', methods=['GET'])
+  def qs_by_categories(categ_id):
+# Had to increment by one because React indexes are zero based:
+    categ_id = categ_id + 1 
+    selection = Question.query.filter(Question.category == str(categ_id)).order_by(Question.id).all()
+    paginated_questions = paginate(request, selection)
+
+    if len(paginated_questions) == 0:
+      abort(404)
+    
+    return jsonify({
+      'success': True,
+      'questions': paginated_questions,
+      'total_questions': len(selection),
+      'current_category': Category.query.get(categ_id).format()
+    })
+
+
+
 
 
   '''
