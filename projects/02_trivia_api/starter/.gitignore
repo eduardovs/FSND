@@ -12,3 +12,4 @@ venv
 ehthumbs.db
 Thumbs.db
 frontend/node_modules
+backend/createtestdb.bat

@@ -182,6 +182,7 @@ def create_app(test_config=None):
   '''
   @app.route('/questions/search', methods=['POST'])
   def question_search():
+    # use try and except pattern. Try None instead of blank
     search_term = request.json.get('searchTerm', '')
     selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).order_by(Question.question).all()
     paginated_results = paginate(request, selection)
@@ -196,7 +197,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  DONE @TODO: 
   Create a GET endpoint to get questions based on category. 
 
   TEST: In the "List" tab / main screen, clicking on one of the 
@@ -206,6 +207,7 @@ def create_app(test_config=None):
   @app.route('/categories/<int:categ_id>/questions', methods=['GET'])
   def qs_by_categories(categ_id):
 # Had to increment by one because React indexes are zero based:
+# my tod: use try and except pattern
     categ_id = categ_id + 1 
     selection = Question.query.filter(Question.category == str(categ_id)).order_by(Question.id).all()
     paginated_questions = paginate(request, selection)
@@ -225,7 +227,7 @@ def create_app(test_config=None):
 
 
   '''
-  @TODO: 
+  DONE @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
   This endpoint should take category and previous question parameters 
   and return a random questions within the given category, 
@@ -235,12 +237,42 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes', methods=['POST'])
+  def play_quiz():
+  
+    body = request.get_json()
+    previous_questions = body.get('previous_questions', [])
+    quiz_category = body.get('quiz_category', None)
+    try:
+      if quiz_category['id'] == 0:
+        selection = Question.query.filter(Question.id.notin_(previous_questions)).all()
+      else:
+        selection = Question.query.filter(Question.category == quiz_category['id'],
+                                                  Question.id.notin_(previous_questions)).all()
+      questions = [q.format() for q in selection]
+      if len(questions) != 0:
+        random_question = random.choice(questions)
+        return jsonify({
+            'success:': True,
+            'question': random_question
+        })
+      else:
+        return jsonify({
+          'question': False
+        })
+      
+
+    except:
+      abort(422)
+
+
 
   '''
   DONE @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+
   @app.errorhandler(404)
   def not_found(error):
     return jsonify({
