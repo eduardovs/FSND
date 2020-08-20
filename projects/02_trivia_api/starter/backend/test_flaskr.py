@@ -57,6 +57,32 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['created'])
 
+    def test_question_search(self):
+        res = self.client().post('/questions/search', json={'searchTearm': 'title'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_matches'])
+
+    def test_qs_by_categories(self):
+        res = self.client().get('/categories/3/questions')
+        data = json.loads(res.data)
+       
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['current_category']['type'], 'History')
+
+    def test_play_quiz(self):
+        res = self.client().post('/quizzes', 
+            json={'quiz_category': {'id': 4},
+                    'previous_question': []
+                    })
+        data = json.loads(res.data)        
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
 
 
 

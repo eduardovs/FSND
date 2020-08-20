@@ -139,7 +139,7 @@ def create_app(test_config=None):
   which will require the question and answer text, 
   category, and difficulty score.
 
-  todo>> TEST: When you submit a question on the "Add" tab, 
+  DONE TEST: When you submit a question on the "Add" tab, 
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
@@ -176,7 +176,7 @@ def create_app(test_config=None):
   It should return any questions for whom the search term 
   is a substring of the question. 
 
-  todo>> TEST: Search by any phrase. The questions list will update to include 
+  DONE TEST: Search by any phrase. The questions list will update to include 
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
@@ -253,7 +253,7 @@ def create_app(test_config=None):
       if len(questions) != 0:
         random_question = random.choice(questions)
         return jsonify({
-            'success:': True,
+            'success': True,
             'question': random_question
         })
       else:
