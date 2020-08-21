@@ -41,13 +41,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']) <= 10)
         self.assertTrue(data['categories'])
 
-    # def test_delete_questions(self):
-    #     res = self.client().delete('/questions/5')
-    #     data = json.loads(res.data)
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data['success'], True)
-    #     self.assertTrue(data['deleted'])
-    #     self.assertTrue(data['categories'])
+    def test_delete_questions(self):
+        res = self.client().delete('/questions/5')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['deleted'])
+        self.assertTrue(data['total_questions'])
 
     def test_create_questions(self):
         res = self.client().post('/questions', json=self.new_question)
