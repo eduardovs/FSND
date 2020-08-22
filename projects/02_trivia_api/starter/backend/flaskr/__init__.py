@@ -81,8 +81,6 @@ def create_app(test_config=None):
       paginated_questions = paginate(request, selection)
       categories = Category.query.order_by(Category.id).all()
 
-  # My TODO: i don't know if the categories should return a number
-  # Maybe the frontend will give hints
       if len(paginated_questions) == 0:
         abort(404)
 
@@ -98,7 +96,7 @@ def create_app(test_config=None):
       })
 
     except:
-      abort(422)
+      abort(404)
 
 
 
@@ -200,7 +198,7 @@ def create_app(test_config=None):
   DONE @TODO: 
   Create a GET endpoint to get questions based on category. 
 
-  TEST: In the "List" tab / main screen, clicking on one of the 
+  DONE TEST: In the "List" tab / main screen, clicking on one of the 
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
@@ -233,7 +231,7 @@ def create_app(test_config=None):
   and return a random questions within the given category, 
   if provided, and that is not one of the previous questions. 
 
-  TEST: In the "Play" tab, after a user selects "All" or a category,
+  DONE TEST: In the "Play" tab, after a user selects "All" or a category,
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
