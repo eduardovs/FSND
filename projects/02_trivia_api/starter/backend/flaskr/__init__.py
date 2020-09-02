@@ -105,7 +105,7 @@ def create_app(test_config=None):
   DONE @TODO: 
   Create an endpoint to DELETE question using a question ID. 
 
-  todo>> TEST: When you click the trash icon next to a question, the question will be removed.
+  DONE TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
   # MyTodo: File a bug about getQuestions() function when the last question delete removes a page
