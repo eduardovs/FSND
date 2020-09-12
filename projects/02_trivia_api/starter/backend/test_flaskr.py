@@ -66,7 +66,7 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_question_search(self):
         res = self.client().post('/questions/search',
-                                 json={'searchTearm': 'title'})
+                                 json={'searchTerm': 'title'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)

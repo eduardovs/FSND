@@ -89,11 +89,11 @@ GET '/categories'
 
 ```
 
-## Endpoints
-GET '/categories'
+## API Endpoints
+### GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
+- Returns: An object with a key of categories, which contains a object of id: category_string key:value pairs. Also returns success status and total number of categories.
 - Example: curl http://127.0.0.1:5000/categories
 ```
 {
@@ -110,7 +110,173 @@ GET '/categories'
 }
 ```
 
+### GET '/questions'
+- Fetches a dictionary with a list of questions. Paginated to return 10 at a time.
+- Request Arguments: None
+- Returns: An object with a key of questions, comprised of a list of dictionaries, whose keys are: question, answer, category, difficulty, and id. Also returns the total number of questions.
 
+- Example: curl http://127.0.0.1:5000/questions
+```
+{
+  "categories": [
+    "Science", 
+    "Art", 
+    "Geography", 
+    "History", 
+    "Entertainment", 
+    "Sports"
+  ], 
+  "current_category": "Science", 
+  "questions": [
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+  ...
+    {
+      "answer": "The Palace of Versailles", 
+      "category": 3, 
+      "difficulty": 3, 
+      "id": 14, 
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 19
+}
+
+```
+### DELETE /questions/<question_id>
+- Deletes a questions, given a question ID
+- Request Arguments: question_id
+- Returns: ID of deleted question, the total of questions, a paginated view of 10 questions, and success status.
+- Example: curl -X DELETE http://127.0.0.1:5000/questions/5
+```
+{
+  "deleted": 5, 
+  "questions": [
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+...
+    {
+      "answer": "Agra", 
+      "category": 3, 
+      "difficulty": 2, 
+      "id": 15, 
+      "question": "The Taj Mahal is located in which Indian city?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 18
+}
+
+```
+
+### POST /questions
+- Creates a new question
+- Request Arguments:
+  - question
+  - answer
+  - category (string)
+  - difficulty: integer
+- Returns: id of questions, success status
+- Example: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital of Brazil?", "answer":"Brasilia", "difficulty":"1", "category":"3"}'
+```
+{
+  "created": 24, 
+  "success": true
+}
+```
+
+### POST /questions/search
+- Fetches questions based on search term.
+- Request Argument: json string with a key of 'searchTerm'.
+- Returns: list of questions found (paginated), total number of matches, success status
+- Example: curl http://127.0.0.1:5000/questions/search -X POST -H "Content-Type: application/json" -d '{"searchTerm":"title"}' 
+```
+{
+  "questions": [
+    {
+      "answer": "Edward Scissorhands", 
+      "category": 5, 
+      "difficulty": 3, 
+      "id": 6, 
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    }
+  ], 
+  "success": true, 
+  "total_matches": 1
+}
+```
+
+### GET /categories/<category_id>/questions
+- Fetches questions based on categories.
+- Request Argument: category id (integer)
+- Returns: An object with the category given, the questions pertaining to the category, their total and the success status
+- Example: curl 127.0.0.1:5000/categories/1/questions
+```
+{
+  "current_category": {
+    "id": 2, 
+    "type": "Art"
+  }, 
+  "questions": [
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }, 
+...
+    {
+      "answer": "Jackson Pollock", 
+      "category": 2, 
+      "difficulty": 2, 
+      "id": 19, 
+      "question": "Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 4
+}
+```
+
+### POST /quizzes
+- Prepares questions to play the quiz.
+- Request Argument: json string. Example keys: {"quiz_category": {"id": 4}, "previous_question": []}
+- Returns: random question and success status.
+- Example: curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category": {"id": 4}, "previous_question": ["What colour is the sky?"]}'
+```
+{
+  "question": {
+    "answer": "Scarab", 
+    "category": 4, 
+    "difficulty": 4, 
+    "id": 23, 
+    "question": "Which dung beetle was worshipped by the ancient Egyptians?"
+  }, 
+  "success": true
+}
+
+```
+### Errors
+Errors are returned as JSON objects. Format:
+```
+{
+  "error": 405, 
+  "message": "method not allowed", 
+  "success": false
+}
+```
 
 
 ## Testing
