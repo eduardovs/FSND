@@ -13,3 +13,4 @@ ehthumbs.db
 Thumbs.db
 frontend/node_modules
 backend/createtestdb.bat
+frontend/node_modules
