@@ -56,6 +56,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['deleted'])
         self.assertTrue(data['total_questions'])
 
+    def test_delete_questions_422(self):
+        """Test case for trying to delete non existing questions"""
+        res = self.client().delete('/questions/1050')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+
     def test_create_questions(self):
         res = self.client().post('/questions', json=self.new_question)
         data = json.loads(res.data)
@@ -73,6 +80,21 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_matches'])
 
+    def test_question_search_no_match(self):
+        res = self.client().post('/questions/search',
+                                 json={'searchTerm': 'xkcd'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['total_matches'], 0)
+
+    def test_question_search_no_searchterm(self):
+        res = self.client().post('/questions/search')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+
     def test_qs_by_categories(self):
         res = self.client().get('/categories/3/questions')
         data = json.loads(res.data)
@@ -82,6 +104,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['current_category']['type'], 'History')
 
     def test_qs_by_categories_404(self):
+        """Test case for non existing categories"""
         res = self.client().get('/categories/999/questions')
         data = json.loads(res.data)
 
