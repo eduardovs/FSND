@@ -75,7 +75,7 @@ def get_drinks_detail(jwt):
 
 
 '''
-@TODO implement endpoint
+@DONE @TODO implement endpoint
     POST /drinks
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
@@ -112,7 +112,7 @@ def make_drink(jwt):
 
 
 '''
-@TODO implement endpoint
+@DONE @TODO implement endpoint
     PATCH /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -122,10 +122,44 @@ def make_drink(jwt):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def edit_drink(jwt, drink_id):
+    body = request.get_json()
+    title = body.get('title', None)
+    recipe = body.get('recipe', None)
+
+    if not title:
+        return jsonify({
+            'success': False,
+            'error': 422,
+            'message': 'Title required'
+        }), 422
+
+    try:
+        drink = Drink.query.filter_by(id=drink_id).one_or_none()
+        if drink is None:
+            abort(404)
+        # Not completed
+        drink.title = title
+        drink.recipe = json.dumps(recipe)    
+        drink.insert()
+
+        return jsonify({
+            'success': True,
+            'drinks': [drink.long()]
+        })
+    
+    except:
+        abort(404)
+
+
+
+    
 
 
 '''
-@TODO implement endpoint
+@DONE @TODO implement endpoint
     DELETE /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -134,6 +168,23 @@ def make_drink(jwt):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(jwt, drink_id):
+    drink = Drink.query.filter_by(id=drink_id).one_or_none()
+    if not drink:
+        abort(404)
+
+    try:
+        drink.delete()
+        return jsonify({
+            "success": True, "delete": id
+        })
+
+    except:
+        abort(422)
+
+
 
 
 ## Error Handling
@@ -184,3 +235,10 @@ def unauthorized(error):
         'error': 401,
         'message': 'unauthorized access'
     }), 401
+
+# https://github.com/henrylin2008/coffee_shop_full_stack/blob/master/backend/src/api.py    
+@app.errorhandler(AuthError)
+def get_auth_error(error):
+    response = jsonify(error.error)
+    response.status_code = error.status_code
+    return response
