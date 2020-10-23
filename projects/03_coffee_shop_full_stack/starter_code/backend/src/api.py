@@ -30,7 +30,7 @@ CORS(app)
 # TEST DATA
 # drink = Drink(
 #     title='pina collada',
-#     recipe='[{"name": "collada", "color": "white", "parts": 1}]'
+#     recipe='[{"name": "collada", "color": "yellow", "parts": 1}]'
 # )
 # drink.insert()
 
@@ -236,9 +236,10 @@ def unauthorized(error):
         'message': 'unauthorized access'
     }), 401
 
+# Snippet from: https://github.com/henrylin2008/coffee_shop_full_stack/blob/master/backend/src/api.py
 # https://github.com/henrylin2008/coffee_shop_full_stack/blob/master/backend/src/api.py    
 @app.errorhandler(AuthError)
-def get_auth_error(error):
+def auth_error(error):
     response = jsonify(error.error)
     response.status_code = error.status_code
     return response
