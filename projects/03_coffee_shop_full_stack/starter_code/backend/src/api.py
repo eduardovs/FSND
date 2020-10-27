@@ -98,7 +98,7 @@ def make_drink(jwt):
         }), 422
 
     try:
-        drink = Drink(title=title, recipe=json.dumps([recipe]))
+        drink = Drink(title=title, recipe=json.dumps(recipe))
         drink.insert()
 
         return jsonify({
@@ -126,24 +126,21 @@ def make_drink(jwt):
 @requires_auth('patch:drinks')
 def edit_drink(jwt, drink_id):
     body = request.get_json()
-    title = body.get('title', None)
-    recipe = body.get('recipe', None)
-
-    if not title:
-        return jsonify({
-            'success': False,
-            'error': 422,
-            'message': 'Title required'
-        }), 422
+    rq_title = body.get('title', None)
+    rq_recipe = body.get('recipe', None)
 
     try:
         drink = Drink.query.filter_by(id=drink_id).one_or_none()
         if drink is None:
             abort(404)
-        # Not completed
-        drink.title = title
-        drink.recipe = json.dumps(recipe)    
-        drink.insert()
+
+        if rq_title is not None:
+            drink.title = rq_title
+        
+        if rq_recipe is not None:
+            drink.recipe = json.dumps(rq_recipe)
+
+        drink.update()
 
         return jsonify({
             'success': True,
@@ -178,7 +175,7 @@ def delete_drink(jwt, drink_id):
     try:
         drink.delete()
         return jsonify({
-            "success": True, "delete": id
+            "success": True, "delete": drink_id
         })
 
     except:
