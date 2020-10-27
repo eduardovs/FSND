@@ -125,14 +125,16 @@ def make_drink(jwt):
 @app.route('/drinks/<int:drink_id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
 def edit_drink(jwt, drink_id):
-    body = request.get_json()
-    rq_title = body.get('title', None)
-    rq_recipe = body.get('recipe', None)
 
     try:
         drink = Drink.query.filter_by(id=drink_id).one_or_none()
+        
         if drink is None:
             abort(404)
+
+        body = request.get_json()
+        rq_title = body.get('title', None)
+        rq_recipe = body.get('recipe', None)
 
         if rq_title is not None:
             drink.title = rq_title
@@ -233,10 +235,12 @@ def unauthorized(error):
         'message': 'unauthorized access'
     }), 401
 
-# Snippet from: https://github.com/henrylin2008/coffee_shop_full_stack/blob/master/backend/src/api.py
-# https://github.com/henrylin2008/coffee_shop_full_stack/blob/master/backend/src/api.py    
+# Snippet from: https://knowledge.udacity.com/questions/331002
+
 @app.errorhandler(AuthError)
 def auth_error(error):
-    response = jsonify(error.error)
-    response.status_code = error.status_code
-    return response
+    return jsonify({
+        "success": False,
+        "error": error.status_code,
+        "message": error.error['description']
+    }), 401
