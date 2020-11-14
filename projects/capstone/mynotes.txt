@@ -1,0 +1,42 @@
+Implementing a check constraint
+
+Example of how you would implement a constraint on an integer: using db.CheckConstraint
+
+class Product(db.Model):
+  ...
+  price = db.Column(db.Float, db.CheckConstraint('price>0'))
+
+This ensures that no product goes into the table with a nonpositive price value.
+Source: https://classroom.udacity.com/nanodegrees/nd0044/parts/216c669c-5e62-43a1-bcb9-8a8e5eca972a/modules/3d18d16d-51ba-48ac-9916-e770981c3f7e/lessons/53139bef-389d-4d0a-b7b6-e4bb4bd0ef0c/concepts/169f1035-8de2-41e3-bab2-5509469ccbae
+
+--
+
+Postgres CLI tools
+
+Keep this as a general reference. You'll be using these commands quite a lot if you are building web apps with Postgres.
+Log in as a particular user
+
+Default installed user is called postgres
+
+sudo -u <username> -i
+
+e.g. sudo -u bob -i
+Create a new database
+
+createdb <database_name>
+
+e.g. createdb mydb
+Destroy a database
+
+dropdb <database_name>
+
+e.g. dropdb mydb
+Reset a database
+
+dropdb <database_name> && createdb <database_name>
+
+e.g. dropdb mydb && createdb mydb
+Source: https://classroom.udacity.com/nanodegrees/nd0044/parts/216c669c-5e62-43a1-bcb9-8a8e5eca972a/modules/3d18d16d-51ba-48ac-9916-e770981c3f7e/lessons/e9a00338-ff0d-415b-b382-25d445e529a1/concepts/ccea8ef8-218a-483e-af58-3a8a8e4aac0a
+.
+
+TODO: auth.py change audience from coffee?
