@@ -1,7 +1,11 @@
 import os
-from sqlalchemy import Column, String, Integer, create_engine
-from flask_sqlalchemy import SQLAlchemy
+import datetime
 import json
+from sqlalchemy import Column, create_engine, CheckConstraint
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+
 
 database_name = "shipping"
 database_path = "postgresql://postgres:sqledu123@{}/{}".format(
@@ -20,7 +24,8 @@ def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    db.create_all()
+    # db.create_all()
+    migrate = Migrate(app, db)
 
 
 '''
@@ -33,24 +38,17 @@ from our shipping department
 class Shipment(db.Model):
     __tablename__ = 'shipment'
 
-    id = Column(Integer, primary_key=True)
-    reference = Column(Integer) # Invoice reference
+    id = Column(db.Integer, primary_key=True)
+    reference = Column(db.Integer) # Invoice reference
     carrier_id = Column(db.Integer, db.ForeignKey(
         'carrier.id'), nullable=False)
-    packages = Column(Integer, nullable=False)
-    weight = Column(Integer, nullable=False)
-    tracking = Column(String) # Carrier tracking number
+    packages = Column(db.Integer, CheckConstraint('packages>0'), nullable=False )
+    weight = Column(db.Float, CheckConstraint('weight>0'), nullable=False) # weight in pounds
+    tracking = Column(db.String) # Carrier tracking number
     packaged_by = Column(db.Integer, db.ForeignKey(
         'packager.id'), nullable=False)
-    create_date = Column(db.Date, nullable=False)
+    create_date = Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
 
-
-
-    # def __init__(self, question, answer, category, difficulty):
-    #     self.question = question
-    #     self.answer = answer
-    #     self.category = category
-    #     self.difficulty = difficulty
 
     def insert(self):
         db.session.add(self)
@@ -82,10 +80,10 @@ Carrier:
 
 
 class Carrier(db.Model):
-    __tablename__ = 'courier'
+    __tablename__ = 'carrier'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String, nullable=False)
 
     def insert(self):
         db.session.add(self)
@@ -110,10 +108,10 @@ class Carrier(db.Model):
 class Packager(db.Model):
     __tablename__ = 'packager'
 
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String)
-    initials = Column(String, nullable=False)
+    id = Column(db.Integer, primary_key=True)
+    first_name = Column(db.String, nullable=False)
+    last_name = Column(db.String)
+    initials = Column(db.String, nullable=False)
 
     def insert(self):
         db.session.add(self)
