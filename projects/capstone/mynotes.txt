@@ -40,3 +40,8 @@ Source: https://classroom.udacity.com/nanodegrees/nd0044/parts/216c669c-5e62-43a
 .
 
 TODO: auth.py change audience from coffee?
+
+
+TODO: pagination of the requests?
+
+TODO:remove debug
