@@ -53,12 +53,28 @@ def create_app(test_config=None):
 
     @app.route('/carriers', methods=['POST'])
     def new_carrier():
-        return None
+        body = request.get_json()
+        newname = body.get('name', None)
+
+        if not newname:
+            abort(422)
+        
+        try:
+            carrier = Carrier(name=newname)
+            carrier.insert()
+
+            return jsonify({
+                "success": True,
+                "carrier": carrier.format()
+            })
+        
+        except:
+            abort(500)
 
 
     @app.route('/carriers/<int:carrier_id>', methods=['PATCH'])
     def edit_carrier():
-        return None 
+        return None
     
 
     """

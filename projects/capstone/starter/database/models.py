@@ -84,6 +84,7 @@ class Carrier(db.Model):
 
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String, nullable=False)
+    active = Column(db.Boolean, default=True)
 
     def insert(self):
         db.session.add(self)
@@ -102,7 +103,8 @@ class Carrier(db.Model):
     def format(self):
         return {
             'id': self.id,
-            'Carrier': self.name
+            'Carrier': self.name,
+            'is_active': self.active
         }
 
 class Packager(db.Model):
@@ -112,6 +114,7 @@ class Packager(db.Model):
     first_name = Column(db.String, nullable=False)
     last_name = Column(db.String)
     initials = Column(db.String, nullable=False)
+    active = Column(db.Boolean, default=True)
 
     def insert(self):
         db.session.add(self)
@@ -130,7 +133,9 @@ class Packager(db.Model):
     def format(self):
         return {
             'id': self.id,
-            'Packager Initials': self.initials
+            'Packager Initials': self.initials,
+            'is_active': self.active
+            
 
         }
 

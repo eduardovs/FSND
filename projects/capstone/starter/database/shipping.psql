@@ -1,0 +1,288 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 12.3
+-- Dumped by pg_dump version 12.3
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: alembic_version; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.alembic_version (
+    version_num character varying(32) NOT NULL
+);
+
+
+ALTER TABLE public.alembic_version OWNER TO postgres;
+
+--
+-- Name: carrier; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.carrier (
+    id integer NOT NULL,
+    name character varying NOT NULL,
+    active boolean
+);
+
+
+ALTER TABLE public.carrier OWNER TO postgres;
+
+--
+-- Name: carrier_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.carrier_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.carrier_id_seq OWNER TO postgres;
+
+--
+-- Name: carrier_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.carrier_id_seq OWNED BY public.carrier.id;
+
+
+--
+-- Name: packager; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.packager (
+    id integer NOT NULL,
+    first_name character varying NOT NULL,
+    last_name character varying,
+    initials character varying NOT NULL,
+    active boolean
+);
+
+
+ALTER TABLE public.packager OWNER TO postgres;
+
+--
+-- Name: packager_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.packager_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.packager_id_seq OWNER TO postgres;
+
+--
+-- Name: packager_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.packager_id_seq OWNED BY public.packager.id;
+
+
+--
+-- Name: shipment; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shipment (
+    id integer NOT NULL,
+    reference integer,
+    carrier_id integer NOT NULL,
+    packages integer NOT NULL,
+    weight double precision NOT NULL,
+    tracking character varying,
+    packaged_by integer NOT NULL,
+    create_date timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.shipment OWNER TO postgres;
+
+--
+-- Name: shipment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.shipment_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shipment_id_seq OWNER TO postgres;
+
+--
+-- Name: shipment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.shipment_id_seq OWNED BY public.shipment.id;
+
+
+--
+-- Name: carrier id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.carrier ALTER COLUMN id SET DEFAULT nextval('public.carrier_id_seq'::regclass);
+
+
+--
+-- Name: packager id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.packager ALTER COLUMN id SET DEFAULT nextval('public.packager_id_seq'::regclass);
+
+
+--
+-- Name: shipment id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment ALTER COLUMN id SET DEFAULT nextval('public.shipment_id_seq'::regclass);
+
+
+--
+-- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.alembic_version (version_num) FROM stdin;
+4f0fa3f75e9a
+\.
+
+
+--
+-- Data for Name: carrier; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.carrier (id, name, active) FROM stdin;
+4	Stephan Express	t
+5	Purolator	t
+6	UPS	t
+\.
+
+
+--
+-- Data for Name: packager; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.packager (id, first_name, last_name, initials, active) FROM stdin;
+1	John	Doe	JD	t
+2	Mary	Smith	MS	t
+3	Fred	Fox	FF	t
+\.
+
+
+--
+-- Data for Name: shipment; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.shipment (id, reference, carrier_id, packages, weight, tracking, packaged_by, create_date) FROM stdin;
+2	45321	4	3	30	XF430000095	1	2020-11-14 09:35:00
+3	45322	4	3	30	XF430000095	1	2020-11-14 09:35:00
+4	45323	4	2	30	XF430000099	1	2020-11-14 10:35:00
+5	45350	5	4	30	1234565655443333	1	2020-11-14 14:20:00
+6	45355	5	1	7	1234565655453300	1	2020-11-14 14:35:00
+7	45371	6	2	5.8	AWX120000000K100	1	2020-11-15 09:35:00
+8	45377	6	3	18.9	AWX120000000K100	1	2020-11-15 09:50:00
+9	45380	6	3	30	AWX120000000K100	1	2020-11-15 10:35:00
+10	45388	4	5	40	XF430000200	1	2020-11-15 10:45:00
+11	45390	5	7	49	1234565655443444	1	2020-11-15 13:15:00
+\.
+
+
+--
+-- Name: carrier_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.carrier_id_seq', 6, true);
+
+
+--
+-- Name: packager_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.packager_id_seq', 3, true);
+
+
+--
+-- Name: shipment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.shipment_id_seq', 11, true);
+
+
+--
+-- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.alembic_version
+    ADD CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num);
+
+
+--
+-- Name: carrier carrier_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.carrier
+    ADD CONSTRAINT carrier_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: packager packager_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.packager
+    ADD CONSTRAINT packager_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipment shipment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment
+    ADD CONSTRAINT shipment_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shipment shipment_carrier_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment
+    ADD CONSTRAINT shipment_carrier_id_fkey FOREIGN KEY (carrier_id) REFERENCES public.carrier(id);
+
+
+--
+-- Name: shipment shipment_packaged_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shipment
+    ADD CONSTRAINT shipment_packaged_by_fkey FOREIGN KEY (packaged_by) REFERENCES public.packager(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
