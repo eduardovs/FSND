@@ -66,15 +66,10 @@ def create_app(test_config=None):
         
         try:
             body = request.get_json()
-            edited_fname = body.get('first_name', packager.first_name)
-            edited_lname = body.get('last_name', packager.last_name)
-            edited_initials = body.get('initials', packager.initials)
-            edited_active = body.get('active', packager.active)
-
-            packager.first_name = edited_fname
-            packager.last_name = edited_lname
-            packager.initials = edited_initials
-            packager.active = edited_active
+            packager.first_name = body.get('first_name', packager.first_name)
+            packager.last_name = body.get('last_name', packager.last_name)
+            packager.initials = body.get('initials', packager.initials)
+            packager.active = body.get('active', packager.active)
 
             packager.update()
 
