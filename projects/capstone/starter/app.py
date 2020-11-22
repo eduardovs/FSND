@@ -59,8 +59,39 @@ def create_app(test_config=None):
 
 
     @app.route('/packagers/<int:packager_id>', methods=['PATCH'])
-    def edit_packager():
-        return None    
+    def edit_packager(packager_id):
+        packager = Packager.query.filter_by(id=packager_id).one_or_none()
+        if packager is None:
+            abort(404)
+        
+        try:
+            body = request.get_json()
+            edited_fname = body.get('first_name', packager.first_name)
+            edited_lname = body.get('last_name', packager.last_name)
+            edited_initials = body.get('initials', packager.initials)
+            edited_active = body.get('active', packager.active)
+
+            packager.first_name = edited_fname
+            packager.last_name = edited_lname
+            packager.initials = edited_initials
+            packager.active = edited_active
+
+            packager.update()
+
+            return jsonify({
+                'success': True,
+                'carrier': packager.format()
+            })
+
+
+
+        except:
+            abort(422)
+
+
+
+
+
 
 
     """
@@ -105,7 +136,6 @@ def create_app(test_config=None):
         if carrier is None:
             abort(404)
         try:
-            
             body = request.get_json()
             edited_name = body.get('name', None)
         
