@@ -164,7 +164,46 @@ def create_app(test_config=None):
 
     @app.route('/shipments', methods=['POST'])
     def new_shipment():
-        return None
+        body = request.get_json()
+        data = {}
+        reference = body.get('reference', None)
+        carrier_id = body.get('carrier_id', None)
+        packages = body.get('packages', None)
+        weight = body.get('weight', None)
+        tracking = body.get('tracking', None)
+        packaged_by = body.get('packaged_by', None)
+        create_date = body.get('create_date', None)
+      
+        # Check which mandatory fields have a null values:
+        fields = body.copy()
+        fields.pop('tracking')
+        fields.pop('create_date')
+        nulls = [v for v in fields if fields[v] is None]
+
+        if nulls:
+            return jsonify({
+                'success': False,
+                'error': 422,
+                'message': f'Field(s) {nulls} cannot be empty'
+            }), 422
+        print(nulls)
+        try:
+            shipment = Shipment(reference=reference, carrier_id=carrier_id, packages=packages,
+            weight=weight, tracking=tracking, packaged_by=packaged_by, create_date=create_date)
+            shipment.insert()
+
+            return jsonify({
+                'success': True,
+                'shipment': shipment.format()
+            })
+        except:
+            abort(500)
+
+
+
+
+
+
 
 
     @app.route('/shipments/<int:shipment_id>', methods=['PATCH'])
