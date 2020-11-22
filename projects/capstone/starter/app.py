@@ -12,6 +12,12 @@ def create_app(test_config=None):
     setup_db(app)
     CORS(app)
 
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        return response
+
     """
     Packagers
     """
@@ -165,17 +171,18 @@ def create_app(test_config=None):
     @app.route('/shipments', methods=['POST'])
     def new_shipment():
         body = request.get_json()
-        data = {}
-        reference = body.get('reference', None)
-        carrier_id = body.get('carrier_id', None)
-        packages = body.get('packages', None)
-        weight = body.get('weight', None)
-        tracking = body.get('tracking', None)
-        packaged_by = body.get('packaged_by', None)
-        create_date = body.get('create_date', None)
+        data = {
+        'reference' : body.get('reference', None),
+        'carrier_id' : body.get('carrier_id', None),
+        'packages' : body.get('packages', None),
+        'weight' : body.get('weight', None),
+        'tracking' : body.get('tracking', None),
+        'packaged_by' : body.get('packaged_by', None),
+        'create_date' : body.get('create_date', None)
+        }
       
         # Check which mandatory fields have a null values:
-        fields = body.copy()
+        fields = data.copy()
         fields.pop('tracking')
         fields.pop('create_date')
         nulls = [v for v in fields if fields[v] is None]
@@ -186,10 +193,10 @@ def create_app(test_config=None):
                 'error': 422,
                 'message': f'Field(s) {nulls} cannot be empty'
             }), 422
-        print(nulls)
+
         try:
-            shipment = Shipment(reference=reference, carrier_id=carrier_id, packages=packages,
-            weight=weight, tracking=tracking, packaged_by=packaged_by, create_date=create_date)
+            shipment = Shipment(reference=data['reference'], carrier_id=data['carrier_id'], packages=data['packages'],
+            weight=data['weight'], tracking=data['tracking'], packaged_by=data['packaged_by'], create_date=data['create_date'])
             shipment.insert()
 
             return jsonify({
@@ -201,22 +208,55 @@ def create_app(test_config=None):
 
 
 
-
-
-
-
-
     @app.route('/shipments/<int:shipment_id>', methods=['PATCH'])
-    def edit_shipment():
-        return None 
+    def edit_shipment(shipment_id):
+        shipment = Shipment.query.filter_by(id=shipment_id).one_or_none()
+        if shipment is None:
+            abort(404)
+        
+        try:
+            body = request.get_json()
+            shipment.reference = body.get('reference', shipment.reference)
+            shipment.carrier_id = body.get('carrier_id', shipment.carrier_id)
+            shipment.packages = body.get('packages', shipment.packages)
+            shipment.weight = body.get('weight', shipment.weight)
+            shipment.tracking = body.get('tracking', shipment.tracking)
+            shipment.packaged_by = body.get('packaged_by', shipment.packaged_by)
+
+            shipment.update()
+
+            return jsonify({
+                'success': True,
+                'shipment': shipment.format()
+            })
+
+        except:
+            abort(422)
+
+
+
 
     @app.route('/shipments/<int:shipment_id>', methods=['DELETE'])
-    def del_shipment():
-        return None
+    def del_shipment(shipment_id):
+        shipment = Shipment.query.filter_by(id=shipment_id).one_or_none()
+        if shipment is None:
+            abort(404)
+
+        try:
+            shipment.delete()
+
+            return jsonify({
+                'success': True,
+                'deleted': shipment.format()
+            })
+        
+        except:
+            abort(422)
+
 
 
 #------------------------
-# Error Handling
+# Error Handlers
 #------------------------
 
     @app.errorhandler(400)
