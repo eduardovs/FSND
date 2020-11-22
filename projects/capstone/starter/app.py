@@ -29,7 +29,34 @@ def create_app(test_config=None):
 
     @app.route('/packagers', methods=['POST'])
     def new_packager():
-        return None
+        body = request.get_json()
+        first_name = body.get('first_name', None)
+        last_name = body.get('last_name', None)
+        initials = body.get('initials', None)
+        active = body.get('active', True)
+
+        if not(first_name and initials):
+            return jsonify({
+                'success': False,
+                'error': 422,
+                'message': 'First Name and Initials Required'
+            }), 422
+
+        try:
+            packager=Packager(first_name=first_name, last_name=last_name, initials=initials, active=active)
+            packager.insert()
+
+            return jsonify({
+                'success': True,
+                'packager': packager.format()
+            })
+
+        except:
+            abort(500)
+
+
+
+
 
     @app.route('/packagers/<int:packager_id>', methods=['PATCH'])
     def edit_packager():
@@ -73,8 +100,26 @@ def create_app(test_config=None):
 
 
     @app.route('/carriers/<int:carrier_id>', methods=['PATCH'])
-    def edit_carrier():
-        return None
+    def edit_carrier(carrier_id):
+        carrier = Carrier.query.filter_by(id=carrier_id).one_or_none()
+        if carrier is None:
+            abort(404)
+        try:
+            
+            body = request.get_json()
+            edited_name = body.get('name', None)
+        
+            carrier.name = edited_name
+            carrier.update()
+
+            return jsonify({
+                'success': True,
+                'carrier': carrier.format()
+            })
+            
+        except:
+            abort(422)
+
     
 
     """
