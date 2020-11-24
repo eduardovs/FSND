@@ -62,8 +62,6 @@ def create_app(test_config=None):
 
 
 
-
-
     @app.route('/packagers/<int:packager_id>', methods=['PATCH'])
     def edit_packager(packager_id):
         packager = Packager.query.filter_by(id=packager_id).one_or_none()
@@ -81,7 +79,7 @@ def create_app(test_config=None):
 
             return jsonify({
                 'success': True,
-                'carrier': packager.format()
+                'packager': packager.format()
             })
 
 

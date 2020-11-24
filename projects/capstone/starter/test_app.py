@@ -30,7 +30,7 @@ class ShippingTestCase(unittest.TestCase):
             "packages":2, 
             "weight": 40, 
             "tracking": "QWE232323", 
-            "packaged_by":4, 
+            "packaged_by":3, 
             "create_date":"2020-11-17"
         }
 
@@ -96,14 +96,52 @@ class ShippingTestCase(unittest.TestCase):
         self.assertTrue(data['success'], True)
         self.assertTrue(data['packager'], True)        
 
-    def test_new_packager(self):
+
+    def test_new_carrier(self):
         res = self.client().post('/carriers', json=self.new_carrier)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'], True)
-        self.assertTrue(data['courier'], True)
+        self.assertTrue(data['carrier'], True)
 
+# Test PATCH requests
+# -------------------
+    def test_edit_packager(self):
+        res = self.client().patch('/packagers/1', 
+            json={
+                "first_name": "Jim"
+            })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['packager'], True)        
+
+    def test_edit_carrier(self):
+        res = self.client().patch('/carriers/4', 
+            json={"name": "Stephan Courier"})
+
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['carrier'], True)
+
+    def test_edit_shipment(self):
+        res = self.client().patch('/shipments/2', 
+            json={"packages": 7,
+                  "weight": 35,
+                  "tracking": "PATCHOK25000400"
+                })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['shipment'], True)        
+
+# Tear Down
+# ---------
     def tearDown(self):
         pass
 
