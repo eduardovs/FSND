@@ -24,14 +24,26 @@ class ShippingTestCase(unittest.TestCase):
             'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
-        self.new_shippment = {
-            'reference': 97900,
-            'carrier_id': 6,
+        self.new_shipment = {
+            "reference": 97900,
+            "carrier_id": 6,
             "packages":2, 
             "weight": 40, 
             "tracking": "QWE232323", 
             "packaged_by":4, 
             "create_date":"2020-11-17"
+        }
+
+        self.new_packager = {
+            "first_name": "Quality",
+            "last_name": "Assurance",
+            "initials": "QA",
+            "active": True
+        }
+
+        self.new_carrier = {
+            "name": "Test Transport",
+            "active": True
         }
 
         with self.app.app_context():
@@ -40,7 +52,8 @@ class ShippingTestCase(unittest.TestCase):
             # create all tables
             self.db.create_all()
 
-        
+# Test GET Requests
+# -----------------        
     def test_get_shipments(self):
         res = self.client().get('/shipments')
         data = json.loads(res.data)
@@ -48,6 +61,48 @@ class ShippingTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'], True)
         self.assertTrue(data['shipments'], True)
+
+    def test_get_packagers(self):
+        res = self.client().get('/packagers')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['packagers'], True)
+
+    def test_get_carriers(self):
+        res = self.client().get('/carriers')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['carriers'], True)
+
+# Test POST requests
+# ------------------
+    def test_new_shipment(self):
+        res = self.client().post('/shipments', json=self.new_shipment)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['shipment'], True)
+
+    def test_new_packager(self):
+        res = self.client().post('/packagers', json=self.new_packager)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['packager'], True)        
+
+    def test_new_packager(self):
+        res = self.client().post('/carriers', json=self.new_carrier)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['courier'], True)
 
     def tearDown(self):
         pass
