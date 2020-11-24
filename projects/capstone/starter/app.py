@@ -198,7 +198,7 @@ def create_app(test_config=None):
                 'shipment': shipment.format()
             })
         except:
-            abort(500)
+            abort(400)
 
 
 
