@@ -24,19 +24,19 @@ class ShippingTestCase(unittest.TestCase):
             'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
-        self.supervisor_header = { "Authorization": "Bearer {}".format(os.getenv('SUPERVISORJWT'))}
-        self.packager_header = { "Authorization": "Bearer {}".format(os.getenv('PACKAGERJWT'))}
-
-
+        self.supervisor_header = {
+            "Authorization": "Bearer {}".format(os.getenv('SUPERVISORJWT'))}
+        self.packager_header = {
+            "Authorization": "Bearer {}".format(os.getenv('PACKAGERJWT'))}
 
         self.new_shipment = {
             "reference": 97900,
             "carrier_id": 6,
-            "packages":2, 
-            "weight": 40, 
-            "tracking": "QWE232323", 
-            "packaged_by":3, 
-            "create_date":"2020-11-17"
+            "packages": 2,
+            "weight": 40,
+            "tracking": "QWE232323",
+            "packaged_by": 3,
+            "create_date": "2020-11-17"
         }
 
         self.new_packager = {
@@ -58,7 +58,7 @@ class ShippingTestCase(unittest.TestCase):
             self.db.create_all()
 
 # Test GET Requests
-# -----------------        
+# -----------------
     def test_get_shipments(self):
         res = self.client().get('/shipments', headers=self.packager_header)
         data = json.loads(res.data)
@@ -86,7 +86,8 @@ class ShippingTestCase(unittest.TestCase):
 # Test POST requests
 # ------------------
     def test_new_shipment(self):
-        res = self.client().post('/shipments', json=self.new_shipment, headers=self.packager_header)
+        res = self.client().post('/shipments', json=self.new_shipment,
+                                 headers=self.packager_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -94,16 +95,17 @@ class ShippingTestCase(unittest.TestCase):
         self.assertTrue(data['shipment'], True)
 
     def test_new_packager(self):
-        res = self.client().post('/packagers', json=self.new_packager, headers=self.supervisor_header)
+        res = self.client().post('/packagers', json=self.new_packager,
+                                 headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'], True)
-        self.assertTrue(data['packager'], True)        
-
+        self.assertTrue(data['packager'], True)
 
     def test_new_carrier(self):
-        res = self.client().post('/carriers', json=self.new_carrier, headers=self.supervisor_header)
+        res = self.client().post('/carriers', json=self.new_carrier,
+                                 headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -113,20 +115,21 @@ class ShippingTestCase(unittest.TestCase):
 
 # Test PATCH requests
 # -------------------
+
     def test_edit_packager(self):
-        res = self.client().patch('/packagers/1', 
-            json={
-                "first_name": "Jim"
-            }, headers=self.supervisor_header)
+        res = self.client().patch('/packagers/1',
+                                  json={
+                                      "first_name": "Jim"
+                                  }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'], True)
-        self.assertTrue(data['packager'], True)        
+        self.assertTrue(data['packager'], True)
 
     def test_edit_carrier(self):
-        res = self.client().patch('/carriers/4', 
-            json={"name": "Stephan Courier"}, headers=self.supervisor_header)
+        res = self.client().patch('/carriers/4',
+                                  json={"name": "Stephan Courier"}, headers=self.supervisor_header)
 
         data = json.loads(res.data)
 
@@ -135,20 +138,21 @@ class ShippingTestCase(unittest.TestCase):
         self.assertTrue(data['carrier'], True)
 
     def test_edit_shipment(self):
-        res = self.client().patch('/shipments/2', 
-            json={"packages": 7,
-                  "weight": 35,
-                  "tracking": "PATCHOK25000400"
-                }, headers=self.supervisor_header)
+        res = self.client().patch('/shipments/2',
+                                  json={"packages": 7,
+                                        "weight": 35,
+                                        "tracking": "PATCHOK25000400"
+                                        }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'], True)
-        self.assertTrue(data['shipment'], True)        
+        self.assertTrue(data['shipment'], True)
 
 
 # Test DELETE requests
 # -------------------
+
     def test_delete_shipment(self):
         res = self.client().delete('/shipments/5', headers=self.supervisor_header)
         data = json.loads(res.data)
@@ -157,13 +161,13 @@ class ShippingTestCase(unittest.TestCase):
         self.assertTrue(data['success'], True)
 
 
-
 # Test Error Handling in POST requests
 # ------------------------------------
+
     def test_422_packager(self):
         """Error because of missing data"""
         res = self.client().post('/packagers',
-         json={"last_name": "Bingo"}, headers=self.supervisor_header)
+                                 json={"last_name": "Bingo"}, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -173,7 +177,7 @@ class ShippingTestCase(unittest.TestCase):
     def test_422_carrier(self):
         """Error because of missing data"""
         res = self.client().post('/carriers',
-         json={"name": ""}, headers=self.supervisor_header)
+                                 json={"name": ""}, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -184,14 +188,14 @@ class ShippingTestCase(unittest.TestCase):
         """Error because of missing required data:
         carrier_id and packages
         """
-        res = self.client().post('/shipments', 
-            json={
-                "reference": 97900,
-                "weight": 40, 
-                "tracking": "QWE232323", 
-                "packaged_by":3, 
-                "create_date":"2020-11-17"                
-            }, headers=self.supervisor_header)
+        res = self.client().post('/shipments',
+                                 json={
+                                     "reference": 97900,
+                                     "weight": 40,
+                                     "tracking": "QWE232323",
+                                     "packaged_by": 3,
+                                     "create_date": "2020-11-17"
+                                 }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -201,16 +205,16 @@ class ShippingTestCase(unittest.TestCase):
     def test_400_shipment(self):
         """Sending invalid foreign keys
         """
-        res = self.client().post('/shipments', 
-            json={
-                "reference": 97999,
-                "carrier_id": 300,
-                "packages":2, 
-                "weight":4, 
-                "tracking": "QWE232323", 
-                "packaged_by":555, 
-                "create_date":"2020-11-22"                
-            }, headers=self.supervisor_header)
+        res = self.client().post('/shipments',
+                                 json={
+                                     "reference": 97999,
+                                     "carrier_id": 300,
+                                     "packages": 2,
+                                     "weight": 4,
+                                     "tracking": "QWE232323",
+                                     "packaged_by": 555,
+                                     "create_date": "2020-11-22"
+                                 }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 400)
@@ -221,34 +225,34 @@ class ShippingTestCase(unittest.TestCase):
 # -------------------------------------
     def test_404_edit_packager(self):
         """Trying to access a non-existent resource"""
-        res = self.client().patch('/packagers/2000', 
-            json={
-                "first_name": "Jim"
-            }, headers=self.supervisor_header)
+        res = self.client().patch('/packagers/2000',
+                                  json={
+                                      "first_name": "Jim"
+                                  }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
     def test_404_edit_carrier(self):
-        res = self.client().patch('/carriers/8000', 
-            json={"name": "Stephan Courier"}, headers=self.supervisor_header)
+        res = self.client().patch('/carriers/8000',
+                                  json={"name": "Stephan Courier"}, headers=self.supervisor_header)
 
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success'])        
+        self.assertFalse(data['success'])
 
     def test_404_edit_shipment(self):
-        res = self.client().patch('/shipments/990000', 
-            json={"packages": 7,
-                  "weight": 35,
-                  "tracking": "PATCHOK25000400"
-                }, headers=self.supervisor_header)
+        res = self.client().patch('/shipments/990000',
+                                  json={"packages": 7,
+                                        "weight": 35,
+                                        "tracking": "PATCHOK25000400"
+                                        }, headers=self.supervisor_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success']) 
+        self.assertFalse(data['success'])
 
 # Test Authorization Requests
 # ---------------------------
@@ -262,7 +266,8 @@ class ShippingTestCase(unittest.TestCase):
         self.assertNotIn('shipment', data)
 
     def test_401_create_packager(self):
-        res = self.client().post('/packagers', json=self.new_packager, headers=self.packager_header)
+        res = self.client().post('/packagers', json=self.new_packager,
+                                 headers=self.packager_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 401)
@@ -284,10 +289,3 @@ class ShippingTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-
-
-
-
-

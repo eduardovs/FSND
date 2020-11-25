@@ -6,6 +6,7 @@ from flask_cors import CORS
 from database.models import setup_db, Shipment, Packager, Carrier
 from auth.auth import AuthError, requires_auth
 
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -14,8 +15,10 @@ def create_app(test_config=None):
 
     @app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers','Content-Type,Authorization,true')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Content-Type,Authorization,true')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET,PUT,POST,DELETE,OPTIONS')
         return response
 
     """
@@ -51,7 +54,8 @@ def create_app(test_config=None):
             }), 422
 
         try:
-            packager=Packager(first_name=first_name, last_name=last_name, initials=initials, active=active)
+            packager = Packager(
+                first_name=first_name, last_name=last_name, initials=initials, active=active)
             packager.insert()
 
             return jsonify({
@@ -62,15 +66,13 @@ def create_app(test_config=None):
         except:
             abort(500)
 
-
-
     @app.route('/packagers/<int:packager_id>', methods=['PATCH'])
     @requires_auth('patch:packager')
     def edit_packager(jwt, packager_id):
         packager = Packager.query.filter_by(id=packager_id).one_or_none()
         if packager is None:
             abort(404)
-        
+
         try:
             body = request.get_json()
             packager.first_name = body.get('first_name', packager.first_name)
@@ -85,12 +87,8 @@ def create_app(test_config=None):
                 'packager': packager.format()
             })
 
-
-
         except:
             abort(422)
-
-
 
     """
     Carriers
@@ -116,7 +114,7 @@ def create_app(test_config=None):
 
         if not newname:
             abort(422)
-        
+
         try:
             carrier = Carrier(name=newname)
             carrier.insert()
@@ -125,10 +123,9 @@ def create_app(test_config=None):
                 "success": True,
                 "carrier": carrier.format()
             })
-        
+
         except:
             abort(500)
-
 
     @app.route('/carriers/<int:carrier_id>', methods=['PATCH'])
     @requires_auth('patch:carrier')
@@ -139,7 +136,7 @@ def create_app(test_config=None):
         try:
             body = request.get_json()
             edited_name = body.get('name', None)
-        
+
             carrier.name = edited_name
             carrier.update()
 
@@ -147,11 +144,9 @@ def create_app(test_config=None):
                 'success': True,
                 'carrier': carrier.format()
             })
-            
+
         except:
             abort(422)
-
-    
 
     """
     Shipments
@@ -174,15 +169,15 @@ def create_app(test_config=None):
     def new_shipment(jwt):
         body = request.get_json()
         data = {
-        'reference' : body.get('reference', None),
-        'carrier_id' : body.get('carrier_id', None),
-        'packages' : body.get('packages', None),
-        'weight' : body.get('weight', None),
-        'tracking' : body.get('tracking', None),
-        'packaged_by' : body.get('packaged_by', None),
-        'create_date' : body.get('create_date', None)
+            'reference': body.get('reference', None),
+            'carrier_id': body.get('carrier_id', None),
+            'packages': body.get('packages', None),
+            'weight': body.get('weight', None),
+            'tracking': body.get('tracking', None),
+            'packaged_by': body.get('packaged_by', None),
+            'create_date': body.get('create_date', None)
         }
-      
+
         # Check which mandatory fields have a null values:
         fields = data.copy()
         fields.pop('tracking')
@@ -198,7 +193,7 @@ def create_app(test_config=None):
 
         try:
             shipment = Shipment(reference=data['reference'], carrier_id=data['carrier_id'], packages=data['packages'],
-            weight=data['weight'], tracking=data['tracking'], packaged_by=data['packaged_by'], create_date=data['create_date'])
+                                weight=data['weight'], tracking=data['tracking'], packaged_by=data['packaged_by'], create_date=data['create_date'])
             shipment.insert()
 
             return jsonify({
@@ -208,15 +203,13 @@ def create_app(test_config=None):
         except:
             abort(400)
 
-
-
     @app.route('/shipments/<int:shipment_id>', methods=['PATCH'])
     @requires_auth('patch:shipments')
     def edit_shipment(jwt, shipment_id):
         shipment = Shipment.query.filter_by(id=shipment_id).one_or_none()
         if shipment is None:
             abort(404)
-        
+
         try:
             body = request.get_json()
             shipment.reference = body.get('reference', shipment.reference)
@@ -224,7 +217,8 @@ def create_app(test_config=None):
             shipment.packages = body.get('packages', shipment.packages)
             shipment.weight = body.get('weight', shipment.weight)
             shipment.tracking = body.get('tracking', shipment.tracking)
-            shipment.packaged_by = body.get('packaged_by', shipment.packaged_by)
+            shipment.packaged_by = body.get(
+                'packaged_by', shipment.packaged_by)
 
             shipment.update()
 
@@ -235,9 +229,6 @@ def create_app(test_config=None):
 
         except:
             abort(422)
-
-
-
 
     @app.route('/shipments/<int:shipment_id>', methods=['DELETE'])
     @requires_auth('delete:shipments')
@@ -253,15 +244,14 @@ def create_app(test_config=None):
                 'success': True,
                 'deleted': shipment.format()
             })
-        
+
         except:
             abort(422)
 
 
-
-#------------------------
+# ------------------------
 # Error Handlers
-#------------------------
+# ------------------------
 
     @app.errorhandler(400)
     def bad_request(error):
@@ -279,7 +269,6 @@ def create_app(test_config=None):
             'message': 'unauthorized access'
         }), 401
 
-
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
@@ -287,7 +276,6 @@ def create_app(test_config=None):
             'error': 404,
             'message': 'resource not found'
         }), 404
-
 
     @app.errorhandler(405)
     def not_allowed(error):
@@ -300,11 +288,10 @@ def create_app(test_config=None):
     @app.errorhandler(422)
     def unprocessable(error):
         return jsonify({
-                        "success": False, 
-                        "error": 422,
-                        "message": "unprocessable"
-                        }), 422
-
+            "success": False,
+            "error": 422,
+            "message": "unprocessable"
+        }), 422
 
     @app.errorhandler(500)
     def server_error(error):
