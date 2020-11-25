@@ -22,7 +22,8 @@ def create_app(test_config=None):
     Packagers
     """
     @app.route('/packagers', methods=['GET'])
-    def get_packagers():
+    @requires_auth('get:packagers')
+    def get_packagers(jwt):
         packagers = [p.format() for p in Packager.query.all()]
 
         if not packagers:
@@ -34,7 +35,8 @@ def create_app(test_config=None):
         }), 200
 
     @app.route('/packagers', methods=['POST'])
-    def new_packager():
+    @requires_auth('post:packager')
+    def new_packager(jwt):
         body = request.get_json()
         first_name = body.get('first_name', None)
         last_name = body.get('last_name', None)
@@ -63,7 +65,8 @@ def create_app(test_config=None):
 
 
     @app.route('/packagers/<int:packager_id>', methods=['PATCH'])
-    def edit_packager(packager_id):
+    @requires_auth('patch:packager')
+    def edit_packager(jwt, packager_id):
         packager = Packager.query.filter_by(id=packager_id).one_or_none()
         if packager is None:
             abort(404)
@@ -93,7 +96,8 @@ def create_app(test_config=None):
     Carriers
     """
     @app.route('/carriers', methods=['GET'])
-    def get_carriers():
+    @requires_auth('get:carriers')
+    def get_carriers(jwt):
         carriers = [c.format() for c in Carrier.query.all()]
 
         if not carriers:
@@ -105,7 +109,8 @@ def create_app(test_config=None):
         }), 200
 
     @app.route('/carriers', methods=['POST'])
-    def new_carrier():
+    @requires_auth('post:carrier')
+    def new_carrier(jwt):
         body = request.get_json()
         newname = body.get('name', None)
 
@@ -126,7 +131,8 @@ def create_app(test_config=None):
 
 
     @app.route('/carriers/<int:carrier_id>', methods=['PATCH'])
-    def edit_carrier(carrier_id):
+    @requires_auth('patch:carrier')
+    def edit_carrier(jwt, carrier_id):
         carrier = Carrier.query.filter_by(id=carrier_id).one_or_none()
         if carrier is None:
             abort(404)
@@ -151,7 +157,8 @@ def create_app(test_config=None):
     Shipments
     """
     @app.route('/shipments', methods=['GET'])
-    def get_shipments():
+    @requires_auth('get:shipments')
+    def get_shipments(jwt):
         shipments = [s.format() for s in Shipment.query.all()]
 
         if not shipments:
@@ -163,7 +170,8 @@ def create_app(test_config=None):
         }), 200
 
     @app.route('/shipments', methods=['POST'])
-    def new_shipment():
+    @requires_auth('post:shipments')
+    def new_shipment(jwt):
         body = request.get_json()
         data = {
         'reference' : body.get('reference', None),
@@ -203,7 +211,8 @@ def create_app(test_config=None):
 
 
     @app.route('/shipments/<int:shipment_id>', methods=['PATCH'])
-    def edit_shipment(shipment_id):
+    @requires_auth('patch:shipments')
+    def edit_shipment(jwt, shipment_id):
         shipment = Shipment.query.filter_by(id=shipment_id).one_or_none()
         if shipment is None:
             abort(404)
@@ -231,7 +240,8 @@ def create_app(test_config=None):
 
 
     @app.route('/shipments/<int:shipment_id>', methods=['DELETE'])
-    def del_shipment(shipment_id):
+    @requires_auth('delete:shipments')
+    def del_shipment(jwt, shipment_id):
         shipment = Shipment.query.filter_by(id=shipment_id).one_or_none()
         if shipment is None:
             abort(404)
@@ -317,9 +327,8 @@ def create_app(test_config=None):
     return app
 
 
-
 app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    APP.run(host='0.0.0.0', port=8080, debug=True)
