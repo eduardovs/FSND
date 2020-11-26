@@ -2,7 +2,7 @@
 ## A Capstone Project for Udacity's Full Stack Nano Degree
 
 ### Motivation
-I am taking Udacity's Full Stack Nano and they suggest a standard final project about creating an app for a Casting Agency, but we were free to choose a different business use case. So, I created this based on a production app (built with MS Access) used at my work place.
+In order to complete Udacity's Full Stack Nano Degree, students are required to submit a final project. They have the option to create a suggested app about a Casting Agency, or create their own app for a different business use case. So, I created this project based on a production app (built with MS Access) used at my work place.
 
 ## Introduction
 The Daily Shipments App was created to keep track of the orders shipped from Ed's Coffee Depot Company. With this app, the managers can see what orders were processed, who did them, what is their tracking number, and also do some analysis about packages and weights and assess the productivity of the workers at the shipping department.
@@ -24,19 +24,32 @@ This is a Python/Flask app that is suitable to be deployed on the Heroku platfor
  - SQLAlchemy
  - Jose
  - Gunicorn
+ - [PostgreSQL](https://www.postgresql.org/download/)
+
 
 Install dependencies by running:
 ```bash
 pip install -r requirements.txt
 ```
+Create a database called "shipping":
+```
+createdb shipping
+```
+
+Create tables and populate with sample data:
+```
+psql shipping < shipping.psql
+```
+
 ### Running the server
-Edit the configuration file **setup.sh** with the proper variables. The run these commands:
+- Edit the configuration file **setup.sh** with the proper variables. The run these commands:
 ```bash
 source setup.sh
 export FLASK_APP=app.py
 export FLASK_ENV=development
 flask run
 ```
+
 #### Authentication
 The authentication system used for this project is Auth0. The **setup.sh** contains the required authorization tokens for the app:
  - SUPERVISORJWT has the jwt token for the supervisor role
@@ -46,16 +59,16 @@ The authentication system used for this project is Auth0. The **setup.sh** conta
 
 | Functionality            | Endpoint                      | Packager         |  Supervisor        | 
 | ------------------------ | ----------------------------- | :----------------: | :----------------: | 
-| Fetches the list of shipments | GET /shipments                   | :heavy_check_mark: | :heavy_check_mark: | 
-| Fetches a list of packagers | GET /packagers                   | :heavy_check_mark: | :heavy_check_mark: | 
-| Fetches a list of carriers | GET /carriers                   | :heavy_check_mark: | :heavy_check_mark: | 
-| Creates a new shipment          | POST /shipments                  | :heavy_check_mark: | :heavy_check_mark: | 
-| Creates a new packager         | POST /packagers                   |        :x:         | :heavy_check_mark: | 
-| Creates a new carrier         | POST /carriers                   |        :x:         | :heavy_check_mark: | 
+| Fetch the list of shipments | GET /shipments                   | :heavy_check_mark: | :heavy_check_mark: | 
+| Fetch a list of packagers | GET /packagers                   | :heavy_check_mark: | :heavy_check_mark: | 
+| Fetch a list of carriers | GET /carriers                   | :heavy_check_mark: | :heavy_check_mark: | 
+| Create a new shipment          | POST /shipments                  | :heavy_check_mark: | :heavy_check_mark: | 
+| Create a new packager         | POST /packagers                   |        :x:         | :heavy_check_mark: | 
+| Create a new carrier         | POST /carriers                   |        :x:         | :heavy_check_mark: | 
 | Modify a specific shipment    | PATCH /shipments/&lt;id&gt; |        :x:         | :heavy_check_mark: | 
 | Modify a specific packager    | PATCH /packagers/&lt;id&gt; |        :x:         | :heavy_check_mark: | 
 | Modify a specific carriers    | PATCH /carriers/&lt;id&gt; |        :x:         | :heavy_check_mark: | 
-| Deletes a specific shipment    | DELETE /shipments/&lt;id&gt;     |        :x:         | :heavy_check_mark:| 
+| Delete a specific shipment    | DELETE /shipments/&lt;id&gt;     |        :x:         | :heavy_check_mark:| 
 
 #### Sample JSON Payloads for POST and PATCH requests
 **POST /shipments**
@@ -104,7 +117,11 @@ The authentication system used for this project is Auth0. The **setup.sh** conta
 
 
 ### Tests
-Running tests:
+Running tests (Locally)
+Make sure PostgreSQL is installed.
+- shipping.psql contains database creation commands and sample data
 ```
+createdb shipping_test
+psql shipping_test < shipping.psql
 python test_app.py
 ```
